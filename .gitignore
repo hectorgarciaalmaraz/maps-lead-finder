@@ -1,0 +1,46 @@
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+!config/.env.example
+config/.env
+config/google_credentials.json
+*credentials*.json
+*service-account*.json
+
+# Runtime data (SQLite database, logs, exports with scraped business data)
+/data/
+*.db
+*.sqlite3
+*.log
+/exports/
+/output/
+/outputs/
+prospectos_*.csv
+prospectos_*.xlsx
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+env/
+
+# Testing / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE / OS
+.vscode/
+.idea/
+.claude/settings.local.json
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local publishing notes
+SAFETY_REPORT.md

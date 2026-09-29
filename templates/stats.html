@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Estadísticas – Maps Lead Finder{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Estadísticas del Sistema</h1>
+  <p>Métricas generales del pipeline de prospección</p>
+</div>
+
+<div class="stats-grid" id="statsGrid">
+  <div class="stat-card"><div class="stat-value" id="totalProspects">—</div><div class="stat-label">Total Prospectos</div></div>
+  <div class="stat-card"><div class="stat-value" id="totalProposals">—</div><div class="stat-label">Propuestas Generadas</div></div>
+  <div class="stat-card"><div class="stat-value" id="totalSent">—</div><div class="stat-label">Mensajes Enviados</div></div>
+  <div class="stat-card"><div class="stat-value" id="totalResponses">—</div><div class="stat-label">Respuestas Recibidas</div></div>
+  <div class="stat-card" style="border-color:#28a745">
+    <div class="stat-value" id="conversionRate" style="color:#28a745">—%</div>
+    <div class="stat-label">Tasa de Conversión</div>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
+  <div class="card">
+    <div class="card-title">Prospectos por Categoría</div>
+    <div id="categoryStats"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Prospectos por Estado</div>
+    <div id="statusStats"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function loadStats() {
+  const data = await api('/api/stats');
+
+  document.getElementById('totalProspects').textContent = data.total_prospects;
+  document.getElementById('totalProposals').textContent = data.total_proposals;
+  document.getElementById('totalSent').textContent = data.total_sent;
+  document.getElementById('totalResponses').textContent = data.total_responses;
+  document.getElementById('conversionRate').textContent = `${data.conversion_rate}%`;
+
+  // Categorías
+  const catNames = { restaurant:'Restaurante', store:'Tienda', gym:'Gimnasio',
+    beauty_salon:'Salón', doctor:'Doctor', dentist:'Dentista', lawyer:'Abogado',
+    accounting:'Contabilidad', real_estate_agency:'Bienes Raíces', hotel:'Hotel',
+    pharmacy:'Farmacia', school:'Escuela', general:'General', car_dealer:'Automotriz' };
+
+  const maxCat = Math.max(...data.by_category.map(c => c.count), 1);
+  document.getElementById('categoryStats').innerHTML = data.by_category
+    .sort((a,b) => b.count - a.count)
+    .map(c => `
+      <div style="margin-bottom:0.75rem">
+        <div style="display:flex;justify-content:space-between;margin-bottom:0.3rem">
+          <span style="font-size:0.88rem">${catNames[c.category] || c.category}</span>
+          <strong>${c.count}</strong>
+        </div>
+        <div class="progress"><div class="progress-bar" style="width:${c.count/maxCat*100}%"></div></div>
+      </div>
+    `).join('');
+
+  // Estados
+  const statusNames = { nuevo:'Nuevo', propuesta_generada:'Con propuesta',
+    contactado:'Contactado', respondido:'Respondido', descartado:'Descartado' };
+  const maxSt = Math.max(...data.by_status.map(s => s.count), 1);
+  document.getElementById('statusStats').innerHTML = data.by_status
+    .sort((a,b) => b.count - a.count)
+    .map(s => `
+      <div style="margin-bottom:0.75rem">
+        <div style="display:flex;justify-content:space-between;margin-bottom:0.3rem">
+          <span style="font-size:0.88rem">${statusNames[s.status] || s.status}</span>
+          <strong>${s.count}</strong>
+        </div>
+        <div class="progress"><div class="progress-bar" style="width:${s.count/maxSt*100}%;background:#1565c0"></div></div>
+      </div>
+    `).join('');
+}
+
+loadStats();
+</script>
+{% endblock %}

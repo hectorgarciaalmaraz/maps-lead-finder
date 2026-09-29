@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Maps Lead Finder{% endblock %}</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f5f7fa; color: #1a1a2e; }
+
+    /* Navbar */
+    .navbar { background: #1a1a2e; padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 60px; }
+    .navbar-brand { color: #e94560; font-weight: 700; font-size: 1.2rem; text-decoration: none; }
+    .navbar-brand span { color: #fff; font-weight: 400; }
+    .nav-links { display: flex; gap: 1.5rem; list-style: none; }
+    .nav-links a { color: #ccc; text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+    .nav-links a:hover, .nav-links a.active { color: #e94560; }
+
+    /* Layout */
+    .container { max-width: 1400px; margin: 0 auto; padding: 2rem 1.5rem; }
+    .page-header { margin-bottom: 2rem; }
+    .page-header h1 { font-size: 1.8rem; color: #1a1a2e; }
+    .page-header p { color: #666; margin-top: 0.3rem; }
+
+    /* Cards */
+    .card { background: #fff; border-radius: 10px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 1.5rem; }
+    .card-title { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; color: #1a1a2e; }
+
+    /* Stats */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .stat-card { background: #fff; border-radius: 10px; padding: 1.2rem 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 4px solid #e94560; }
+    .stat-value { font-size: 2rem; font-weight: 700; color: #1a1a2e; }
+    .stat-label { font-size: 0.8rem; color: #888; margin-top: 0.2rem; }
+
+    /* Buttons */
+    .btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem; border-radius: 6px; border: none; cursor: pointer; font-size: 0.85rem; font-weight: 500; text-decoration: none; transition: all 0.2s; }
+    .btn-primary { background: #e94560; color: #fff; }
+    .btn-primary:hover { background: #c73652; }
+    .btn-secondary { background: #f0f0f5; color: #444; }
+    .btn-secondary:hover { background: #e0e0ea; }
+    .btn-success { background: #28a745; color: #fff; }
+    .btn-success:hover { background: #218838; }
+    .btn-sm { padding: 0.3rem 0.7rem; font-size: 0.78rem; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* Table */
+    .table-container { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    th { background: #f8f9fa; padding: 0.75rem 1rem; text-align: left; font-weight: 600; color: #555; border-bottom: 2px solid #e9ecef; white-space: nowrap; }
+    td { padding: 0.7rem 1rem; border-bottom: 1px solid #f0f0f5; vertical-align: middle; }
+    tr:hover td { background: #fafafa; }
+
+    /* Badges */
+    .badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.75rem; font-weight: 500; }
+    .badge-nuevo { background: #e3f2fd; color: #1565c0; }
+    .badge-propuesta { background: #fff8e1; color: #e65100; }
+    .badge-contactado { background: #e8f5e9; color: #2e7d32; }
+    .badge-respondido { background: #f3e5f5; color: #6a1b9a; }
+    .badge-descartado { background: #fbe9e7; color: #bf360c; }
+
+    /* Forms */
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; font-size: 0.85rem; font-weight: 500; margin-bottom: 0.3rem; color: #444; }
+    .form-control { width: 100%; padding: 0.5rem 0.75rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem; transition: border-color 0.2s; }
+    .form-control:focus { outline: none; border-color: #e94560; }
+    select.form-control { background: #fff; }
+
+    /* Filters */
+    .filters { display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end; margin-bottom: 1.5rem; padding: 1rem 1.5rem; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .filter-group { display: flex; flex-direction: column; gap: 0.25rem; }
+    .filter-group label { font-size: 0.78rem; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.05em; }
+    .filter-group input, .filter-group select { padding: 0.4rem 0.7rem; border: 1px solid #ddd; border-radius: 5px; font-size: 0.85rem; }
+
+    /* Alerts */
+    .alert { padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.9rem; }
+    .alert-success { background: #d4edda; color: #155724; }
+    .alert-error { background: #f8d7da; color: #721c24; }
+    .alert-info { background: #d1ecf1; color: #0c5460; }
+
+    /* Pagination */
+    .pagination { display: flex; gap: 0.3rem; justify-content: center; margin-top: 1.5rem; }
+    .pagination a, .pagination span { padding: 0.4rem 0.8rem; border-radius: 5px; font-size: 0.85rem; text-decoration: none; color: #444; background: #fff; border: 1px solid #ddd; }
+    .pagination .active { background: #e94560; color: #fff; border-color: #e94560; }
+
+    /* Modal */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: #fff; border-radius: 12px; padding: 2rem; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .modal-title { font-size: 1.1rem; font-weight: 600; }
+    .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #888; line-height: 1; }
+    .modal-footer { display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1.5rem; }
+
+    /* Spinner */
+    .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Stars */
+    .stars { color: #ffc107; font-size: 0.9rem; }
+
+    /* Empty state */
+    .empty-state { text-align: center; padding: 4rem 2rem; color: #888; }
+    .empty-state h3 { font-size: 1.2rem; margin-bottom: 0.5rem; }
+
+    /* Progress bar */
+    .progress { background: #e9ecef; border-radius: 10px; height: 8px; overflow: hidden; }
+    .progress-bar { background: #e94560; height: 100%; border-radius: 10px; transition: width 0.3s; }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="/" class="navbar-brand">Maps <span>Lead Finder</span></a>
+    <ul class="nav-links">
+      <li><a href="/prospects" {% if request.path == '/prospects' %}class="active"{% endif %}>Prospectos</a></li>
+      <li><a href="/search" {% if request.path == '/search' %}class="active"{% endif %}>Buscar</a></li>
+      <li><a href="/stats" {% if request.path == '/stats' %}class="active"{% endif %}>Estadísticas</a></li>
+      <li><a href="/config" {% if request.path == '/config' %}class="active"{% endif %}>Configuración</a></li>
+    </ul>
+  </nav>
+
+  <div class="container">
+    {% block content %}{% endblock %}
+  </div>
+
+  <script>
+    // Utilidades globales
+    async function api(url, method = 'GET', body = null) {
+      const opts = { method, headers: { 'Content-Type': 'application/json' } };
+      if (body) opts.body = JSON.stringify(body);
+      const resp = await fetch(url, opts);
+      return resp.json();
+    }
+
+    function badge(status) {
+      const map = { nuevo: 'badge-nuevo', propuesta_generada: 'badge-propuesta',
+        contactado: 'badge-contactado', respondido: 'badge-respondido', descartado: 'badge-descartado' };
+      const labels = { nuevo: 'Nuevo', propuesta_generada: 'Con propuesta',
+        contactado: 'Contactado', respondido: 'Respondido', descartado: 'Descartado' };
+      return `<span class="badge ${map[status] || 'badge-nuevo'}">${labels[status] || status}</span>`;
+    }
+
+    function stars(rating) {
+      if (!rating) return '<span style="color:#ccc">Sin calificación</span>';
+      const full = Math.floor(rating);
+      return `<span class="stars">${'★'.repeat(full)}${'☆'.repeat(5-full)}</span> <small>${rating}</small>`;
+    }
+
+    function showAlert(msg, type = 'success') {
+      const div = document.createElement('div');
+      div.className = `alert alert-${type}`;
+      div.textContent = msg;
+      document.querySelector('.container').prepend(div);
+      setTimeout(() => div.remove(), 4000);
+    }
+  </script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

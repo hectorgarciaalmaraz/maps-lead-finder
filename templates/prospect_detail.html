@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+{% block title %}{{ prospect.name }} – Maps Lead Finder{% endblock %}
+
+{% block content %}
+<div style="margin-bottom:1rem">
+  <a href="/prospects" style="color:#888;text-decoration:none">← Volver a prospectos</a>
+</div>
+
+<div style="display:grid;grid-template-columns:2fr 1fr;gap:1.5rem">
+  <!-- Columna izquierda: datos del negocio -->
+  <div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <h2 style="font-size:1.5rem;margin-bottom:0.3rem">{{ prospect.name }}</h2>
+          <p style="color:#888">{{ prospect.category }}</p>
+        </div>
+        <span class="badge badge-{{ prospect.status }}">{{ prospect.status }}</span>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.5rem">
+        <div>
+          <p style="font-size:0.78rem;color:#888;text-transform:uppercase;letter-spacing:0.05em">Dirección</p>
+          <p style="margin-top:0.3rem">{{ prospect.address or '—' }}</p>
+        </div>
+        <div>
+          <p style="font-size:0.78rem;color:#888;text-transform:uppercase;letter-spacing:0.05em">Teléfono</p>
+          <p style="margin-top:0.3rem">
+            {% if prospect.phone %}<a href="tel:{{ prospect.phone }}">{{ prospect.phone }}</a>
+            {% else %}—{% endif %}
+          </p>
+        </div>
+        <div>
+          <p style="font-size:0.78rem;color:#888;text-transform:uppercase;letter-spacing:0.05em">Email</p>
+          <p style="margin-top:0.3rem">
+            {% if prospect.email %}<a href="mailto:{{ prospect.email }}">{{ prospect.email }}</a>
+            {% else %}—{% endif %}
+          </p>
+        </div>
+        <div>
+          <p style="font-size:0.78rem;color:#888;text-transform:uppercase;letter-spacing:0.05em">Sitio Web</p>
+          <p style="margin-top:0.3rem">
+            {% if prospect.website %}<a href="{{ prospect.website }}" target="_blank">{{ prospect.website[:50] }}...</a>
+            {% else %}—{% endif %}
+          </p>
+        </div>
+        <div>
+          <p style="font-size:0.78rem;color:#888;text-transform:uppercase;letter-spacing:0.05em">Calificación</p>
+          <p style="margin-top:0.3rem">
+            {% if prospect.rating %}
+              <span style="color:#ffc107">{% for i in range(prospect.rating|int) %}★{% endfor %}</span>
+              {{ prospect.rating }} ({{ prospect.review_count or 0 }} reseñas)
+            {% else %}Sin calificación{% endif %}
+          </p>
+        </div>
+        <div>
+          <p style="font-size:0.78rem;color:#888;text-transform:uppercase;letter-spacing:0.05em">Distancia</p>
+          <p style="margin-top:0.3rem">{{ "%.1f"|format(prospect.distance_km) + " km" if prospect.distance_km else "—" }}</p>
+        </div>
+        {% if prospect.facebook_url %}
+        <div>
+          <p style="font-size:0.78rem;color:#888;text-transform:uppercase;letter-spacing:0.05em">Facebook</p>
+          <p style="margin-top:0.3rem"><a href="{{ prospect.facebook_url }}" target="_blank">Ver perfil</a></p>
+        </div>
+        {% endif %}
+        {% if prospect.instagram_url %}
+        <div>
+          <p style="font-size:0.78rem;color:#888;text-transform:uppercase;letter-spacing:0.05em">Instagram</p>
+          <p style="margin-top:0.3rem"><a href="{{ prospect.instagram_url }}" target="_blank">Ver perfil</a></p>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Notas -->
+      <div style="margin-top:1.5rem">
+        <label style="font-size:0.85rem;font-weight:500;display:block;margin-bottom:0.5rem">Notas internas</label>
+        <textarea id="notesArea" class="form-control" rows="3" placeholder="Agrega notas sobre este prospecto...">{{ prospect.notes or '' }}</textarea>
+        <button class="btn btn-secondary btn-sm" onclick="saveNotes()" style="margin-top:0.5rem">Guardar notas</button>
+      </div>
+    </div>
+
+    <!-- Historial de propuestas -->
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+        <div class="card-title" style="margin-bottom:0">Propuestas ({{ prospect.proposals|length }})</div>
+        <button class="btn btn-primary btn-sm" onclick="generateProposal()">✨ Generar nueva</button>
+      </div>
+      {% if prospect.proposals %}
+        {% for proposal in prospect.proposals|reverse %}
+        <div style="border:1px solid #e9ecef;border-radius:8px;padding:1rem;margin-bottom:1rem">
+          <div style="display:flex;justify-content:space-between;margin-bottom:0.75rem">
+            <small style="color:#888">{{ proposal.generated_at.strftime('%d/%m/%Y %H:%M') if proposal.generated_at else '—' }}</small>
+            <div style="display:flex;gap:0.5rem;align-items:center">
+              <small style="color:#888">{{ proposal.word_count or '—' }} palabras</small>
+              {% if proposal.is_sent %}<span class="badge badge-contactado">Enviado</span>{% endif %}
+            </div>
+          </div>
+          <p style="font-size:0.85rem;line-height:1.6;color:#444;white-space:pre-wrap">{{ proposal.content }}</p>
+          {% if not proposal.is_sent %}
+          <div style="display:flex;gap:0.5rem;margin-top:0.75rem">
+            <select class="form-control" id="channel_{{ proposal.id }}" style="width:auto;font-size:0.85rem">
+              <option value="email">📧 Email</option>
+              <option value="whatsapp">💬 WhatsApp</option>
+              <option value="sms">📱 SMS</option>
+            </select>
+            <button class="btn btn-success btn-sm" onclick="sendProposal({{ proposal.id }})">Enviar</button>
+          </div>
+          {% endif %}
+        </div>
+        {% endfor %}
+      {% else %}
+        <p style="color:#888;text-align:center;padding:2rem">No hay propuestas aún</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Columna derecha: historial de contactos -->
+  <div>
+    <div class="card">
+      <div class="card-title">Historial de Contactos ({{ prospect.contacts|length }})</div>
+      {% if prospect.contacts %}
+        {% for contact in prospect.contacts|reverse %}
+        <div style="border-bottom:1px solid #f0f0f5;padding:0.75rem 0">
+          <div style="display:flex;justify-content:space-between">
+            <strong style="font-size:0.85rem">{{ contact.channel|upper }}</strong>
+            <span class="badge badge-{{ 'contactado' if contact.status == 'enviado' else 'nuevo' }}">{{ contact.status }}</span>
+          </div>
+          <p style="font-size:0.78rem;color:#888;margin-top:0.2rem">{{ contact.recipient or '—' }}</p>
+          {% if contact.sent_at %}
+          <p style="font-size:0.78rem;color:#aaa">{{ contact.sent_at.strftime('%d/%m/%Y %H:%M') }}</p>
+          {% endif %}
+          {% if contact.error_message %}
+          <p style="font-size:0.78rem;color:#dc3545">{{ contact.error_message[:80] }}</p>
+          {% endif %}
+        </div>
+        {% endfor %}
+      {% else %}
+        <p style="color:#888;text-align:center;padding:2rem;font-size:0.85rem">Sin contactos aún</p>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <div class="card-title">Acciones Rápidas</div>
+      <div style="display:flex;flex-direction:column;gap:0.5rem">
+        <button class="btn btn-secondary" onclick="changeStatus('contactado')">✓ Marcar como contactado</button>
+        <button class="btn btn-secondary" onclick="changeStatus('respondido')">💬 Marcar respondido</button>
+        <button class="btn btn-secondary" onclick="changeStatus('descartado')">✗ Descartar</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const PROSPECT_ID = {{ prospect.id }};
+
+async function saveNotes() {
+  const notes = document.getElementById('notesArea').value;
+  await api(`/api/prospects/${PROSPECT_ID}`, 'PATCH', { notes });
+  showAlert('Notas guardadas');
+}
+
+async function changeStatus(status) {
+  await api(`/api/prospects/${PROSPECT_ID}`, 'PATCH', { status });
+  showAlert(`Estado actualizado a: ${status}`);
+  location.reload();
+}
+
+async function generateProposal() {
+  const btn = event.target;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Generando...';
+  const result = await api(`/api/prospects/${PROSPECT_ID}/generate-proposal`, 'POST');
+  if (result.success) {
+    location.reload();
+  } else {
+    showAlert(result.error, 'error');
+    btn.disabled = false;
+    btn.innerHTML = '✨ Generar nueva';
+  }
+}
+
+async function sendProposal(proposalId) {
+  const channel = document.getElementById(`channel_${proposalId}`).value;
+  const result = await api(`/api/proposals/${proposalId}/send`, 'POST', { channel });
+  if (result.success) {
+    showAlert(`✓ Propuesta enviada por ${channel}`);
+    location.reload();
+  } else {
+    showAlert(`Error: ${result.error}`, 'error');
+  }
+}
+</script>
+{% endblock %}

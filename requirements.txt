@@ -1,0 +1,44 @@
+# ============================================================
+# MAPS LEAD FINDER
+# Dependencias del proyecto
+# ============================================================
+
+# HTTP y parsing web
+requests==2.32.3
+beautifulsoup4==4.12.3
+lxml==6.0.2
+
+# Google Maps
+googlemaps==4.10.0
+
+# Inteligencia Artificial - Anthropic Claude
+anthropic==0.40.0
+
+# Framework web y dashboard
+flask==3.1.0
+flask-sqlalchemy==3.1.1
+
+# Configuración
+python-dotenv==1.0.1
+PyYAML==6.0.2
+pydantic==2.12.5
+
+# Canales de contacto
+twilio==9.4.3
+sendgrid==6.11.0
+
+# Datos y exportación
+pandas==3.0.6
+openpyxl==3.1.5
+gspread==6.2.1
+google-auth==2.59.0
+
+# Interfaz de línea de comandos
+click==8.1.8
+
+# Utilidades
+pytz==2024.2
+
+# Testing
+pytest==8.3.4
+pytest-cov==6.0.0

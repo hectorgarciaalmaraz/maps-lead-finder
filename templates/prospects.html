@@ -1,0 +1,316 @@
+{% extends "base.html" %}
+{% block title %}Prospectos – Maps Lead Finder{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Prospectos</h1>
+  <p>Negocios locales extraídos de Google Maps listos para contactar</p>
+</div>
+
+<!-- Filtros -->
+<div class="filters">
+  <div class="filter-group">
+    <label>Buscar</label>
+    <input type="text" id="searchInput" placeholder="Nombre del negocio..." style="min-width:200px">
+  </div>
+  <div class="filter-group">
+    <label>Categoría</label>
+    <select id="categoryFilter">
+      <option value="">Todas</option>
+      <option value="restaurant">Restaurante</option>
+      <option value="store">Tienda</option>
+      <option value="gym">Gimnasio</option>
+      <option value="beauty_salon">Salón de Belleza</option>
+      <option value="doctor">Doctor</option>
+      <option value="dentist">Dentista</option>
+      <option value="lawyer">Abogado</option>
+      <option value="accounting">Contabilidad</option>
+      <option value="real_estate_agency">Bienes Raíces</option>
+      <option value="hotel">Hotel</option>
+      <option value="pharmacy">Farmacia</option>
+      <option value="school">Escuela</option>
+      <option value="general">General</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>Estado</label>
+    <select id="statusFilter">
+      <option value="">Todos</option>
+      <option value="nuevo">Nuevo</option>
+      <option value="propuesta_generada">Con propuesta</option>
+      <option value="contactado">Contactado</option>
+      <option value="respondido">Respondido</option>
+      <option value="descartado">Descartado</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>Calificación mín.</label>
+    <select id="ratingFilter">
+      <option value="">Cualquiera</option>
+      <option value="4">4+ ★</option>
+      <option value="3">3+ ★</option>
+      <option value="2">2+ ★</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>Tiene email</label>
+    <select id="emailFilter">
+      <option value="">Todos</option>
+      <option value="true">Solo con email</option>
+    </select>
+  </div>
+  <button class="btn btn-secondary" onclick="resetFilters()">Limpiar</button>
+  <div style="margin-left:auto;display:flex;gap:0.5rem">
+    <button class="btn btn-primary" onclick="generateBatch()">⚡ Generar propuestas</button>
+    <a href="/api/export/csv" class="btn btn-secondary">↓ CSV</a>
+    <a href="/api/export/excel" class="btn btn-secondary">↓ Excel</a>
+  </div>
+</div>
+
+<!-- Tabla de prospectos -->
+<div class="card" style="padding:0">
+  <div id="loading" style="text-align:center;padding:3rem;color:#888">Cargando prospectos...</div>
+  <div class="table-container" id="tableContainer" style="display:none">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Negocio</th>
+          <th>Categoría</th>
+          <th>Teléfono</th>
+          <th>Email</th>
+          <th>Calificación</th>
+          <th>Distancia</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="prospectsBody"></tbody>
+    </table>
+  </div>
+  <div id="emptyState" class="empty-state" style="display:none">
+    <h3>No hay prospectos</h3>
+    <p>Inicia una búsqueda en Google Maps para encontrar negocios.</p>
+    <a href="/search" class="btn btn-primary" style="margin-top:1rem">🔍 Buscar negocios</a>
+  </div>
+</div>
+
+<div id="pagination" class="pagination"></div>
+<p id="totalInfo" style="text-align:center;color:#888;font-size:0.85rem;margin-top:0.5rem"></p>
+
+<!-- Modal de propuesta -->
+<div class="modal-overlay" id="proposalModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Propuesta para <strong id="modalBusinessName"></strong></span>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div id="proposalContent">
+      <div style="text-align:center;padding:2rem;color:#888">
+        <div id="generateSpinner" class="spinner" style="width:32px;height:32px;border-color:#ddd;border-top-color:#e94560;display:none;margin:0 auto 1rem"></div>
+        <p id="generateStatus">Generando propuesta con IA...</p>
+      </div>
+    </div>
+    <div class="modal-footer" id="proposalActions" style="display:none">
+      <select id="sendChannel" class="form-control" style="width:auto">
+        <option value="email">📧 Email</option>
+        <option value="whatsapp">💬 WhatsApp</option>
+        <option value="sms">📱 SMS</option>
+      </select>
+      <button class="btn btn-success" onclick="sendProposal()">Enviar</button>
+      <button class="btn btn-secondary" onclick="closeModal()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentPage = 1;
+let currentProposalId = null;
+let currentProspectId = null;
+let debounceTimer;
+
+// Cargar prospectos con filtros actuales
+async function loadProspects(page = 1) {
+  currentPage = page;
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('tableContainer').style.display = 'none';
+  document.getElementById('emptyState').style.display = 'none';
+
+  const params = new URLSearchParams({
+    page,
+    per_page: 25,
+    search: document.getElementById('searchInput').value,
+    category: document.getElementById('categoryFilter').value,
+    status: document.getElementById('statusFilter').value,
+    min_rating: document.getElementById('ratingFilter').value,
+    has_email: document.getElementById('emailFilter').value,
+  });
+
+  const data = await api(`/api/prospects?${params}`);
+
+  document.getElementById('loading').style.display = 'none';
+
+  if (!data.prospects || data.prospects.length === 0) {
+    document.getElementById('emptyState').style.display = 'block';
+    return;
+  }
+
+  document.getElementById('tableContainer').style.display = 'block';
+  document.getElementById('totalInfo').textContent = `${data.total} prospectos encontrados`;
+
+  // Renderizar filas
+  const tbody = document.getElementById('prospectsBody');
+  tbody.innerHTML = data.prospects.map(p => `
+    <tr>
+      <td><small style="color:#999">#${p.id}</small></td>
+      <td>
+        <a href="/prospects/${p.id}" style="font-weight:500;color:#1a1a2e;text-decoration:none">${p.name}</a>
+        ${p.address ? `<br><small style="color:#999">${p.address.substring(0,50)}...</small>` : ''}
+      </td>
+      <td><small>${formatCategory(p.category)}</small></td>
+      <td>${p.phone ? `<a href="tel:${p.phone}" style="color:#444">${p.phone}</a>` : '<span style="color:#ccc">—</span>'}</td>
+      <td>${p.email ? `<a href="mailto:${p.email}" style="color:#1565c0;font-size:0.8rem">${p.email}</a>` : '<span style="color:#ccc">—</span>'}</td>
+      <td>${stars(p.rating)}</td>
+      <td>${p.distance_km ? `${p.distance_km.toFixed(1)} km` : '—'}</td>
+      <td>${badge(p.status)}</td>
+      <td>
+        <button class="btn btn-primary btn-sm" onclick="openProposal(${p.id}, '${p.name.replace(/'/g,"\\'")}', ${p.has_proposal}, ${p.proposals_count > 0 ? p.proposals_count : 0})">
+          ${p.has_proposal ? '📄 Ver propuesta' : '✨ Generar'}
+        </button>
+      </td>
+    </tr>
+  `).join('');
+
+  // Paginación
+  renderPagination(data.current_page, data.pages);
+}
+
+function formatCategory(cat) {
+  const map = { restaurant:'Restaurante', store:'Tienda', gym:'Gimnasio',
+    beauty_salon:'Salón Belleza', doctor:'Doctor', dentist:'Dentista',
+    lawyer:'Abogado', accounting:'Contabilidad', real_estate_agency:'Bienes Raíces',
+    hotel:'Hotel', pharmacy:'Farmacia', school:'Escuela', general:'General',
+    car_dealer:'Automotriz', veterinary_care:'Veterinaria' };
+  return map[cat] || cat;
+}
+
+function renderPagination(current, total) {
+  if (total <= 1) { document.getElementById('pagination').innerHTML = ''; return; }
+  let html = '';
+  if (current > 1) html += `<a href="#" onclick="loadProspects(${current-1})">‹</a>`;
+  for (let i = Math.max(1,current-2); i <= Math.min(total,current+2); i++) {
+    html += `<${i===current?'span class="active"':'a href="#" onclick="loadProspects('+i+')"'}>${i}</${i===current?'span':'a'}>`;
+  }
+  if (current < total) html += `<a href="#" onclick="loadProspects(${current+1})">›</a>`;
+  document.getElementById('pagination').innerHTML = html;
+}
+
+async function openProposal(prospectId, name, hasProposal, proposalCount) {
+  currentProspectId = prospectId;
+  currentProposalId = null;
+  document.getElementById('modalBusinessName').textContent = name;
+  document.getElementById('proposalModal').classList.add('open');
+  document.getElementById('proposalActions').style.display = 'none';
+
+  if (hasProposal) {
+    // Cargar propuesta existente
+    const data = await api(`/api/prospects/${prospectId}`);
+    if (data.proposals && data.proposals.length > 0) {
+      const proposal = data.proposals[data.proposals.length - 1];
+      currentProposalId = proposal.id;
+      showProposalEditor(proposal.content);
+    }
+  } else {
+    // Generar nueva propuesta
+    document.getElementById('proposalContent').innerHTML = `
+      <div style="text-align:center;padding:2rem;color:#888">
+        <div class="spinner" style="width:32px;height:32px;border-color:#ddd;border-top-color:#e94560;margin:0 auto 1rem"></div>
+        <p>Generando propuesta con IA...</p>
+      </div>`;
+
+    const result = await api(`/api/prospects/${prospectId}/generate-proposal`, 'POST');
+    if (result.success) {
+      currentProposalId = result.proposal.id;
+      showProposalEditor(result.proposal.content);
+      loadProspects(currentPage); // Refrescar tabla
+    } else {
+      document.getElementById('proposalContent').innerHTML =
+        `<div class="alert alert-error">Error: ${result.error}</div>`;
+    }
+  }
+}
+
+function showProposalEditor(content) {
+  document.getElementById('proposalContent').innerHTML = `
+    <div class="form-group">
+      <label>Propuesta (editable antes de enviar)</label>
+      <textarea id="proposalText" class="form-control" rows="12" style="resize:vertical;font-size:0.9rem;line-height:1.5">${content}</textarea>
+    </div>
+    <small style="color:#888" id="wordCount"></small>`;
+  updateWordCount();
+  document.getElementById('proposalText').addEventListener('input', updateWordCount);
+  document.getElementById('proposalText').addEventListener('blur', saveEdits);
+  document.getElementById('proposalActions').style.display = 'flex';
+}
+
+function updateWordCount() {
+  const text = document.getElementById('proposalText')?.value || '';
+  const count = text.trim().split(/\s+/).filter(Boolean).length;
+  const el = document.getElementById('wordCount');
+  if (el) el.textContent = `${count} palabras ${count > 200 ? '⚠️ Excede el límite de 200' : '✓'}`;
+}
+
+async function saveEdits() {
+  if (!currentProposalId) return;
+  const content = document.getElementById('proposalText')?.value;
+  await api(`/api/proposals/${currentProposalId}`, 'PUT', { content });
+}
+
+async function sendProposal() {
+  if (!currentProposalId) return;
+  await saveEdits();
+  const channel = document.getElementById('sendChannel').value;
+  const result = await api(`/api/proposals/${currentProposalId}/send`, 'POST', { channel });
+  if (result.success) {
+    showAlert(`✓ Propuesta enviada por ${channel}`, 'success');
+    closeModal();
+    loadProspects(currentPage);
+  } else {
+    showAlert(`Error: ${result.error}`, 'error');
+  }
+}
+
+async function generateBatch() {
+  if (!confirm('¿Generar propuestas para todos los prospectos sin propuesta?')) return;
+  const result = await api('/api/batch/generate', 'POST', {});
+  showAlert(`✓ ${result.generated} propuestas generadas. ${result.errors} errores.`);
+  loadProspects(currentPage);
+}
+
+function closeModal() {
+  document.getElementById('proposalModal').classList.remove('open');
+  currentProposalId = null;
+}
+
+function resetFilters() {
+  ['searchInput','categoryFilter','statusFilter','ratingFilter','emailFilter']
+    .forEach(id => document.getElementById(id).value = '');
+  loadProspects(1);
+}
+
+// Filtros con debounce
+['categoryFilter','statusFilter','ratingFilter','emailFilter'].forEach(id => {
+  document.getElementById(id)?.addEventListener('change', () => loadProspects(1));
+});
+document.getElementById('searchInput')?.addEventListener('input', () => {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => loadProspects(1), 400);
+});
+
+// Cargar al inicio
+loadProspects(1);
+</script>
+{% endblock %}

@@ -1,0 +1,60 @@
+# ============================================================
+# MAPS LEAD FINDER - Configuración del Sistema
+# Parámetros no sensibles del sistema de prospección
+# ============================================================
+
+scraping:
+  default_radius_km: 5
+  rate_limit_delay_seconds: 0.3   # Segundos entre llamadas a la API (Google permite ~50 QPS)
+  max_results_per_category: 60    # Máx 60 resultados por categoría (3 páginas de 20)
+  enrich_websites: true           # Visitar sitios web para extraer emails/redes
+  enrich_timeout_seconds: 5       # Timeout al visitar sitios web
+  categories:
+    - restaurant
+    - store
+    - gym
+    - beauty_salon
+    - doctor
+    - dentist
+    - lawyer
+    - accounting
+    - real_estate_agency
+    - car_dealer
+    - hotel
+    - veterinary_care
+    - pharmacy
+    - school
+
+proposals:
+  model: "claude-haiku-4-5-20251001"   # Modelo de IA para generación
+  max_tokens: 500                       # Máximo tokens de respuesta
+  min_words: 150                        # Mínimo de palabras por propuesta
+  max_words: 200                        # Máximo de palabras por propuesta
+  services_per_proposal: 3             # Servicios a mencionar por propuesta
+  temperature: 0.7                     # Creatividad del modelo (0-1)
+
+contact:
+  max_contacts_per_day: 50            # Límite diario de contactos
+  contact_window_start: 9             # Hora de inicio de ventana de contacto (9 AM)
+  contact_window_end: 19              # Hora de fin de ventana de contacto (7 PM)
+  channels_priority:                  # Orden de prioridad de canales
+    - email
+    - whatsapp
+    - sms
+  retry_failed_after_hours: 24        # Reintentar fallidos después de N horas
+
+dashboard:
+  host: "127.0.0.1"
+  port: 5000
+  debug: false
+  items_per_page: 25                  # Resultados por página en el dashboard
+
+database:
+  path: "data/prospects.db"
+
+logging:
+  level: "INFO"
+  file: "data/logs/maps-lead-finder.log"
+  max_bytes: 10485760                 # 10 MB por archivo de log
+  backup_count: 5                     # Número de archivos de log a conservar
+  format: "%(asctime)s | %(levelname)s | %(name)s | %(message)s"

@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python:*)",
+      "Bash(pip:*)",
+      "Bash(pytest:*)",
+      "Bash(flask:*)",
+      "Read(*)",
+      "Write(*)",
+      "Edit(*)"
+    ],
+    "deny": []
+  },
+  "env": {
+    "FLASK_APP": "dashboard.py",
+    "FLASK_ENV": "development",
+    "PYTHONPATH": "."
+  }
+}

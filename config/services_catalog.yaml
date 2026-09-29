@@ -1,0 +1,267 @@
+# ============================================================
+# MAPS LEAD FINDER - Catálogo de Servicios de IA (ejemplo)
+# 17 servicios de ejemplo; reemplázalos por los de tu agencia para ofrecer a negocios locales
+# ============================================================
+
+services:
+  - id: S01
+    name: "Sistemas Automatizados con IA"
+    short_description: "Automatiza tus procesos y ahorra tiempo con IA"
+    full_description: "Automatización de procesos repetitivos y flujos de trabajo usando inteligencia artificial. Ideal para negocios que buscan eficiencia operativa y reducción de costos."
+    best_for:
+      - restaurant
+      - store
+      - real_estate_agency
+      - accounting
+      - car_dealer
+      - hotel
+    benefit: "Ahorra horas de trabajo manual y reduce errores operativos"
+
+  - id: S02
+    name: "Bot Asistente para Negocios con IA"
+    short_description: "Atiende a tus clientes las 24 horas del día"
+    full_description: "Chatbot inteligente que atiende clientes, responde preguntas frecuentes y gestiona consultas 24/7. Perfecto para cualquier negocio con atención al cliente."
+    best_for:
+      - restaurant
+      - store
+      - hotel
+      - gym
+      - beauty_salon
+      - pharmacy
+      - veterinary_care
+    benefit: "Nunca pierdas un cliente por falta de atención, incluso fuera de horario"
+
+  - id: S03
+    name: "Bot Tipo Secretaria con IA"
+    short_description: "Gestiona citas y agenda de forma automática"
+    full_description: "Asistente virtual que gestiona agendas, citas, llamadas y recordatorios. Ideal para consultorios, despachos y oficinas que manejan muchas citas."
+    best_for:
+      - doctor
+      - dentist
+      - lawyer
+      - beauty_salon
+      - gym
+      - veterinary_care
+    benefit: "Elimina el caos de las citas y reduce las ausencias de clientes"
+
+  - id: S04
+    name: "Páginas Web y Apps Móviles con IA"
+    short_description: "Tu negocio en internet con funciones inteligentes"
+    full_description: "Desarrollo de sitios web y aplicaciones móviles potenciados con funcionalidades de IA. Para negocios que necesitan presencia digital moderna y funcional."
+    best_for:
+      - restaurant
+      - store
+      - real_estate_agency
+      - school
+      - gym
+      - car_dealer
+    benefit: "Atrae más clientes online y ofrece una experiencia moderna a tus usuarios"
+
+  - id: S05
+    name: "Generación de Imágenes y Videos con IA"
+    short_description: "Contenido visual profesional sin costo de fotógrafo"
+    full_description: "Creación de contenido visual profesional usando IA generativa. Para marketing, redes sociales y publicidad con imágenes y videos de alta calidad."
+    best_for:
+      - restaurant
+      - store
+      - beauty_salon
+      - hotel
+      - gym
+      - car_dealer
+    benefit: "Genera contenido atractivo para redes sociales en minutos, sin contratar diseñadores"
+
+  - id: S06
+    name: "Campañas de Marketing y Publicidad con IA"
+    short_description: "Atrae más clientes con publicidad inteligente"
+    full_description: "Diseño y ejecución de estrategias de marketing digital potenciadas con IA. Análisis de audiencia, segmentación automática y optimización continua."
+    best_for:
+      - restaurant
+      - store
+      - beauty_salon
+      - gym
+      - hotel
+      - car_dealer
+      - pharmacy
+    benefit: "Llega a los clientes correctos en el momento adecuado y multiplica tus ventas"
+
+  - id: S07
+    name: "Sistemas de Scraping de Datos con IA"
+    short_description: "Obtén información clave de tu mercado automáticamente"
+    full_description: "Extracción inteligente de datos de cualquier fuente web. Ideal para investigación de mercado, análisis de competencia y generación de leads."
+    best_for:
+      - real_estate_agency
+      - accounting
+      - lawyer
+      - car_dealer
+      - school
+    benefit: "Conoce a tu competencia y descubre oportunidades de negocio con datos en tiempo real"
+
+  - id: S08
+    name: "Sistemas Financieros con IA (Excel/Sheets)"
+    short_description: "Reportes financieros automáticos y predicciones"
+    full_description: "Sistemas financieros conectados a Excel y Google Sheets con capacidades de IA para análisis, predicción de ventas y generación automática de reportes."
+    best_for:
+      - accounting
+      - real_estate_agency
+      - lawyer
+      - doctor
+      - restaurant
+      - store
+    benefit: "Toma mejores decisiones financieras con análisis automáticos y predicciones precisas"
+
+  - id: S09
+    name: "Gestión de Herramientas Google con IA"
+    short_description: "Saca el máximo provecho a Google en tu negocio"
+    full_description: "Integración y automatización de Google Drive, Calendar, Sheets, Gmail y más. Productividad empresarial aumentada con inteligencia artificial."
+    best_for:
+      - school
+      - accounting
+      - real_estate_agency
+      - store
+      - doctor
+      - lawyer
+    benefit: "Organiza tu negocio de forma inteligente y ahorra horas de trabajo administrativo"
+
+  - id: S10
+    name: "Extracción de Datos de Documentos con IA"
+    short_description: "Digitaliza y procesa documentos automáticamente"
+    full_description: "Procesamiento inteligente de documentos: facturas, contratos, formularios y expedientes. OCR avanzado con comprensión contextual del contenido."
+    best_for:
+      - lawyer
+      - doctor
+      - dentist
+      - accounting
+      - school
+      - real_estate_agency
+    benefit: "Elimina la captura manual de datos y encuentra información en segundos"
+
+  - id: S11
+    name: "Generación de Música con IA"
+    short_description: "Música y jingles únicos para tu negocio"
+    full_description: "Creación de música original, jingles y audio personalizado para cualquier propósito comercial. Música ambiental, publicidad y branding sonoro."
+    best_for:
+      - restaurant
+      - hotel
+      - gym
+      - beauty_salon
+      - store
+    benefit: "Dale identidad sonora a tu marca con música original y profesional"
+
+  - id: S12
+    name: "Generación y Clonación de Voz con IA"
+    short_description: "Locuciones profesionales a bajo costo"
+    full_description: "Narración profesional, voces para videos, sistemas IVR y clonación de voz para contenido personalizado. Perfecto para anuncios, tutoriales y atención telefónica."
+    best_for:
+      - restaurant
+      - hotel
+      - school
+      - store
+      - doctor
+      - dentist
+    benefit: "Crea locuciones profesionales para tus videos y anuncios sin contratar actores"
+
+  - id: S13
+    name: "Generación de Avatares con IA"
+    short_description: "Representantes virtuales para tu marca"
+    full_description: "Creación de avatares digitales y presentadores virtuales para videos, presentaciones y atención al cliente. Ideal para modernizar la imagen de tu negocio."
+    best_for:
+      - school
+      - real_estate_agency
+      - store
+      - hotel
+      - doctor
+    benefit: "Moderniza tu marca con un representante virtual disponible en todo momento"
+
+  - id: S14
+    name: "Consultoría en Herramientas de IA"
+    short_description: "Aprende a usar IA en tu negocio"
+    full_description: "Asesoría personalizada para implementar herramientas de IA en cualquier área del negocio. Capacitación práctica y acompañamiento continuo."
+    best_for:
+      - accounting
+      - lawyer
+      - doctor
+      - school
+      - real_estate_agency
+      - car_dealer
+    benefit: "Da el primer paso hacia la digitalización con guía experta y sin complicaciones"
+
+  - id: S15
+    name: "Manejo de Inventario con IA"
+    short_description: "Control de stock en tiempo real y alertas automáticas de reabastecimiento"
+    full_description: "Sistema inteligente de gestión de inventario con IA: control de stock en tiempo real, alertas automáticas de reabastecimiento, predicción de demanda y reportes automáticos. Elimina mermas, evita quiebres de stock y reduce el tiempo dedicado a conteos manuales."
+    best_for:
+      - store
+      - pharmacy
+      - restaurant
+      - car_dealer
+      - hotel
+      - veterinary_care
+    benefit: "Reduce mermas y pérdidas por desabasto, ahorra horas de conteo manual y toma decisiones de compra con datos reales"
+
+  - id: S16
+    name: "Asistente Virtual con Voz para Llamadas Telefónicas"
+    short_description: "Atiende y realiza llamadas automáticamente con voz natural"
+    full_description: "Agente de voz con IA que atiende llamadas entrantes, agenda citas, responde preguntas frecuentes y realiza llamadas de seguimiento de forma autónoma. Voz natural en español, disponible 24/7, sin tiempos de espera. Ideal para negocios que reciben muchas llamadas o necesitan seguimiento telefónico automático."
+    best_for:
+      - doctor
+      - dentist
+      - beauty_salon
+      - lawyer
+      - real_estate_agency
+      - hotel
+      - gym
+      - restaurant
+    benefit: "Ninguna llamada sin atender, ningún seguimiento olvidado — sin contratar recepcionistas adicionales ni pagar horas extra"
+
+  - id: S17
+    name: "Manejo y Creación de Redes Sociales con IA"
+    short_description: "Perfil profesional en Instagram y Facebook gestionado automáticamente con IA"
+    full_description: "Creación y gestión automatizada de redes sociales con IA: publicaciones regulares, diseño de contenido visual, respuesta a comentarios y mensajes, y estrategia de crecimiento orgánico. Para negocios que no tienen presencia en redes o que no tienen tiempo de mantenerlas activas."
+    best_for:
+      - restaurant
+      - beauty_salon
+      - gym
+      - store
+      - hotel
+      - veterinary_care
+      - pharmacy
+      - doctor
+      - dentist
+      - school
+    benefit: "Presencia profesional en Instagram y Facebook sin dedicar tiempo a ello — contenido publicado, comentarios respondidos y seguidores creciendo de forma automática"
+
+# Mapeo de categorías de Google Maps a categorías internas
+category_mapping:
+  restaurant: restaurant
+  food: restaurant
+  meal_takeaway: restaurant
+  cafe: restaurant
+  bar: restaurant
+  store: store
+  clothing_store: store
+  electronics_store: store
+  home_goods_store: store
+  grocery_or_supermarket: store
+  gym: gym
+  health: gym
+  beauty_salon: beauty_salon
+  hair_care: beauty_salon
+  spa: beauty_salon
+  doctor: doctor
+  hospital: doctor
+  dentist: dentist
+  lawyer: lawyer
+  legal: lawyer
+  accounting: accounting
+  finance: accounting
+  real_estate_agency: real_estate_agency
+  car_dealer: car_dealer
+  car_repair: car_dealer
+  hotel: hotel
+  lodging: hotel
+  veterinary_care: veterinary_care
+  pharmacy: pharmacy
+  drugstore: pharmacy
+  school: school
+  university: school
+  general: general

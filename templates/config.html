@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Configuración – Maps Lead Finder{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Configuración del Sistema</h1>
+  <p>Datos de contacto de la agencia y parámetros del sistema</p>
+</div>
+
+<div class="card">
+  <div class="card-title">Datos de Contacto de la Agencia</div>
+  <p style="color:#888;font-size:0.85rem;margin-bottom:1.5rem">
+    Estos datos se incluirán automáticamente en todas las propuestas generadas.
+  </p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+    <div class="form-group">
+      <label>Teléfono / WhatsApp</label>
+      <input type="text" id="agency_phone" class="form-control" placeholder="+52XXXXXXXXXX">
+    </div>
+    <div class="form-group">
+      <label>Correo Electrónico</label>
+      <input type="email" id="agency_email" class="form-control" placeholder="contacto@tu-agencia.com">
+    </div>
+    <div class="form-group">
+      <label>Sitio Web</label>
+      <input type="url" id="agency_website" class="form-control" placeholder="https://tu-agencia.com">
+    </div>
+    <div class="form-group">
+      <label>Facebook</label>
+      <input type="url" id="agency_facebook" class="form-control" placeholder="https://facebook.com/tu-agencia">
+    </div>
+    <div class="form-group">
+      <label>Instagram</label>
+      <input type="url" id="agency_instagram" class="form-control" placeholder="https://instagram.com/tu-agencia">
+    </div>
+    <div class="form-group">
+      <label>LinkedIn</label>
+      <input type="url" id="agency_linkedin" class="form-control" placeholder="https://linkedin.com/company/tu-agencia">
+    </div>
+  </div>
+  <button class="btn btn-primary" onclick="saveConfig()">💾 Guardar Configuración</button>
+</div>
+
+<div class="card">
+  <div class="card-title">Variables de Entorno (informativo)</div>
+  <p style="color:#888;font-size:0.85rem">
+    Estas variables se configuran en el archivo <code>.env</code> en la raíz del proyecto.
+    Las credenciales de API no son editables desde el dashboard por seguridad.
+  </p>
+  <table style="margin-top:1rem;font-size:0.85rem">
+    <tr><th>Variable</th><th>Descripción</th></tr>
+    <tr><td><code>GOOGLE_MAPS_API_KEY</code></td><td>API Key para búsqueda en Google Maps</td></tr>
+    <tr><td><code>ANTHROPIC_API_KEY</code></td><td>API Key para generación de propuestas con IA</td></tr>
+    <tr><td><code>SMTP_USER / SMTP_PASSWORD</code></td><td>Credenciales para envío de emails</td></tr>
+    <tr><td><code>TWILIO_ACCOUNT_SID / AUTH_TOKEN</code></td><td>Credenciales para SMS y WhatsApp</td></tr>
+    <tr><td><code>DEFAULT_RADIUS_KM</code></td><td>Radio de búsqueda por defecto</td></tr>
+    <tr><td><code>MAX_CONTACTS_PER_DAY</code></td><td>Límite de contactos diarios (default: 50)</td></tr>
+  </table>
+  <p style="margin-top:1rem">
+    <a href="/api/export/csv" class="btn btn-secondary">↓ Exportar Prospectos CSV</a>
+    <a href="/api/export/excel" class="btn btn-secondary">↓ Exportar Prospectos Excel</a>
+  </p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function loadConfig() {
+  const data = await api('/api/config');
+  const fields = ['agency_phone','agency_email','agency_website',
+                  'agency_facebook','agency_instagram','agency_linkedin'];
+  fields.forEach(f => {
+    const el = document.getElementById(f);
+    if (el && data[f]) el.value = data[f];
+  });
+}
+
+async function saveConfig() {
+  const data = {};
+  ['agency_phone','agency_email','agency_website',
+   'agency_facebook','agency_instagram','agency_linkedin'].forEach(f => {
+    data[f] = document.getElementById(f).value;
+  });
+  const result = await api('/api/config', 'PUT', data);
+  if (result.success) {
+    showAlert('✓ Configuración guardada correctamente');
+  } else {
+    showAlert('Error al guardar configuración', 'error');
+  }
+}
+
+loadConfig();
+</script>
+{% endblock %}
